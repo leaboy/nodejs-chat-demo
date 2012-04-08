@@ -24,8 +24,10 @@ io.sockets.on('connection', function(socket){
 	});
 	socket.on('disconnect', function(){
 		socket.get('nickname', function(err, data){
-			user_name.remove(data.name);
-			io.sockets.emit('offline', data);
+			if (data) {
+				user_name.remove(data.name);
+				io.sockets.emit('offline', data);
+			}
 		});
 	});
 });
