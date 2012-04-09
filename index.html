@@ -32,9 +32,16 @@ $(function (){
 				});
 
 				socket.on('welcome', function(data){
-					$('#name_wrap').hide();
-					$('#main_wrap').show();
-					$('#main_head h3').html(data.name);
+					$.cookie('username', data.name);
+					$.cookie('sex', data.sex);
+					$.cookie('id', data.id);
+
+					var userDOM = $('#user_' + data.id + '');
+					if (userDOM.length > 0) {
+						userDOM.prependTo($('#main_frame_right'));
+					} else {
+						$('#main_frame_right').prepend('<div class="user_list" id="user_' + data.id + '">' + data.name + '</div>');
+					}
 				});
 
 				socket.on('recive', function(data){
@@ -48,8 +55,12 @@ $(function (){
 				});
 
 				socket.on('onlineUserUpdate', function(data){
-					$.each(data, function(key, val){
-						$('#main_right').append('<li>'+val+'</li>');
+					var userDOM;
+					$.each(data, function(id, data){
+						userDOM = $('#user_' + id +'');
+						if (!userDOM.length > 0) {
+							$('#main_frame_right').prepend('<div class="user_list" id="user_' + data.id + '">' + data.name + '</div>');
+						}
 					})
 				});
 			}
@@ -127,6 +138,8 @@ function Auto_msgInput_height(){
 
     #layout_msg{display: none;}
     #msg_input{border: none; width: 99.5%; margin: 2px 3px;}
+
+    #main_frame_right .user_list{padding: 2px 5px;}
  </style>
 </head>
 
@@ -175,7 +188,7 @@ function Auto_msgInput_height(){
                 </div>
             </div>
 		</div>
-		<div position="right" title="用户列表"></div>
+		<div position="right" title="用户列表" id="main_frame_right"></div>
 	</div>
 
     <div style="height:32px; line-height:32px; text-align:center;">

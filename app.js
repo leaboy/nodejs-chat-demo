@@ -1,14 +1,15 @@
 var io = require('socket.io').listen(8000);
-var user_name = [];
-var user_client = {};
+var user = {};
+var clientHandler = {};
 io.sockets.on('connection', function(socket){
 	socket.emit('ready', {msg: 'OK'});
 	socket.on('setname', function(data){
-		socket.set('nickname', data, function(){
-			socket.emit('welcome', data);
-		});
-		user_name.push(data.name);
-		user_client[data.name] = socket;
+		var uid = socket.id;
+		var udata = data;
+		udata.id = uid;
+		socket.emit('welcome', udata);
+		user[uid] = data;
+		clientHandler[uid] = socket;
 	});
 	socket.on('send', function(data){
 		if (data.sendTo) {
@@ -33,7 +34,7 @@ io.sockets.on('connection', function(socket){
 });
 
 setInterval(function(){
-	io.sockets.emit('onlineUserUpdate', user_name);
+	io.sockets.emit('onlineUserUpdate', user);
 }, 30000);
 
 Array.prototype.remove = function(n){if(isNaN(parseInt(n))) return false;if(n>=this.length || n<0) return false;for(i=n;i<this.length-1;i++) this[i]=this[i+1];this.pop();return true;}
